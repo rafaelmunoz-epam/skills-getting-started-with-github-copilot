@@ -150,8 +150,8 @@ footer {
   border-top: 1px dashed #e6e6e6;
 }
 .participants-list {
-  list-style: disc;
-  margin: 8px 0 0 20px;
+  list-style: none;
+  margin: 8px 0 0 0;
   padding: 0;
 }
 .participants-list li {
@@ -167,4 +167,24 @@ footer {
   margin: 0;
   font-weight: 600;
   color: #333;
+}
+
+/* remove button */
+.remove-participant {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  font-weight: 700;
+  margin-left: 10px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.remove-participant:hover {
+  background: rgba(198,40,40,0.08);
+}
+.participant-email {
+  display: inline-block;
+  max-width: calc(100% - 26px);
+  word-break: break-all;
 }
