@@ -20,11 +20,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        const participantsItems = (details.participants && details.participants.length)
+          ? details.participants.map(p => `
+              <li>
+                <span class="participant-email">${p}</span>
+                <button class="remove-participant" data-activity="${name}" data-email="${p}" aria-label="Remove ${p}">✖</button>
+              </li>
+            `).join("")
+          : '<li><em>No participants yet</em></li>';
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <div class="participants">
+            <p><strong>Participants:</strong></p>
+            <ul class="participants-list">
+              ${participantsItems}
+            </ul>
+          </div>
         `;
 
         activitiesList.appendChild(activityCard);
@@ -40,6 +55,42 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error fetching activities:", error);
     }
   }
+
+    // Delegate click handler to remove participants
+    activitiesList.addEventListener("click", async (event) => {
+      const btn = event.target.closest(".remove-participant");
+      if (!btn) return;
+
+      const email = btn.dataset.email;
+      const activity = btn.dataset.activity;
+
+      if (!email || !activity) return;
+
+      try {
+        const resp = await fetch(
+          `/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(email)}`,
+          { method: "POST" }
+        );
+
+        const result = await resp.json();
+        if (resp.ok) {
+          messageDiv.textContent = result.message;
+          messageDiv.className = "success";
+          // refresh list
+          fetchActivities();
+        } else {
+          messageDiv.textContent = result.detail || "Failed to remove participant";
+          messageDiv.className = "error";
+        }
+      } catch (err) {
+        messageDiv.textContent = "Failed to remove participant. Please try again.";
+        messageDiv.className = "error";
+        console.error("Error removing participant:", err);
+      }
+
+      messageDiv.classList.remove("hidden");
+      setTimeout(() => messageDiv.classList.add("hidden"), 4000);
+    });
 
   // Handle form submission
   signupForm.addEventListener("submit", async (event) => {
